@@ -141,6 +141,14 @@ void setup() {
   compassHW.setSamples(HMC5883L_SAMPLES_8);
   compassHW.setOffset(0, 0);
   wdt_enable(WDTO_250MS);
+
+  ReadTime();
+  ReadCompass();
+  ReadSextant();
+  azimuth  = calcAzimuth();
+  elevation = calcElevation();
+  printStatus();
+  
 }
 
 void printStatus(){
@@ -166,7 +174,7 @@ void printStatus(){
       Serial.print  (F("   azimuth sunrise...: "));Serial.println(asunrise);
       Serial.print  (F("   azimtth sunset....:" ));Serial.println(asunset);
       Serial.println(F("Stored sun path in midday offset:"));
-      Serial.println(F( "Week   ->  Minutes, Angle Arc"));
+      Serial.println(F( "Week   ->  Minutes, Angle"));
         for ( i=0; i < 52; i++ ) { 
           Serial.print(i+1); Serial.print(F("week  ->  "));
           Serial.print(WeekMinutesFromMidday[i]);Serial.print(",");
@@ -433,6 +441,7 @@ void loop() {
     // set deltaA 5
     // set deltaE 5
     // set compassoffset 20
+    // status
     
     if (inputString.startsWith("set date ")) {
       //i.e: set date 2018-02-25 18:33

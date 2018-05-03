@@ -1,8 +1,8 @@
-// ESta version añade el watchdog para reiniciarse en caso de que se cuelgue.
-// ESta version es super reducida.
-// corregidos los agujeros de calcAzimut cuando m = tsunrise +120 de versiones previas.
-// De hecho... solo contempla dos casos... que sea de dia o no sea de dia.
-
+// Cambio el check de comando pendiente para que se ejecute cuando se lanza.
+// no cuando le venia bien, como hasta la fecha.
+// Ahora se comprueba justo antes de enpezar un nuevo ciclo de ejecucion.
+// Ahora ningun estado tiene que comprobar si hay comando pendiente.
+// sExecute no toca pState, ya ho hay riesgo de quedarse encerrado en ese estado.
 
 // Atmel MEGA328P AW1519 program 32K, sram 2K, eeprom 1K.
 #include <avr/pgmspace.h>
@@ -402,6 +402,8 @@ void loop() {
     wdt_reset();
   }
   
+  if (comanndPending) sstate = sExecute;
+  
   Serial.println(F("Leyendo calendario..."));
   ReadTime();
   Serial.println(F("Leyendo brujula..."));
@@ -436,7 +438,6 @@ void loop() {
     else                                       { moveTiltMotor   (stoped);  }
 
     sstate = sNormal;
-    if (comanndPending) { sstate = sExecute;}
   break; 
  
   case sExecute :
@@ -514,9 +515,6 @@ void loop() {
     inputString = "";
     comanndPending = false;
     sstate = pstate;
-    //NOTE: pstate = sstate, could be inf.loop when sstate == sExecute.
-    //      So, pstate = sNormal is less harmfull.
-    if (comanndPending) { pstate = sNormal; sstate = sExecute;} 
     break; //sExecute
   }
 }
